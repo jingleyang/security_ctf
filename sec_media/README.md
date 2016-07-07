@@ -2,7 +2,7 @@
 
 ## Introduction
 
-I will list some famous security journals and conferences. And I will discuss them in popularity and professional and easy of publish.
+I will list several widely recognised security journals and conferences. And I will discuss them in popularity and ease of publish.
 
 ## Journals and Conferences
 
@@ -21,4 +21,19 @@ I will list some famous security journals and conferences. And I will discuss th
 1. [GIAC Gold](https://www.giac.org/certifications/gold)
 
 2. [SANS Reading Room](https://www.sans.org/reading-room/)
+
+### defcon, blackhat, RSA and infosec
+
+### magazine
+http://www.infosecurity-magazine.com/
+http://www.scmagazine.com/
+http://www.cyberdefensemagazine.com/
+### Coursera
+
+### Academic resources
+
+1. 	Background
+2. Big 4 A Level conference: S&P，CCS, USENIX Security, NDSS.
+3. Practical conference:RAID, TrustCom,International Conference on Malware an Unwanted software, DIMVA
+
 
