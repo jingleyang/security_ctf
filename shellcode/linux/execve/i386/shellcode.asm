@@ -10,5 +10,6 @@ _start:
 	push eax				; push NULL
 	push ebx				
 	mov ecx, esp			; ecx = the pointer to  {cmd,NULL}
+	mov edx, eax			; edx = the pointer to ENV( NULL )
 	mov al, 0x0b			; eax = 0x0b
 	int 0x80				; sys call

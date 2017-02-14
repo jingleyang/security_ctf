@@ -1,6 +1,6 @@
 OPT=-v -static -Os 
-SRC=execve.c
-OUT=execve
+SRC=system.c
+OUT=system
 all: clean x64 i386
 
 x64:
